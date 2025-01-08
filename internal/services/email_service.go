@@ -7,14 +7,19 @@ import (
 	utils "example/hello/pkg/utils"
 )
 
-func GetEmails(page int, size int, term string) ([]models.EmailDocument, error) {
+func GetEmails(page int, size int, term string) (models.PaginatorResponse, error) {
 	from := utils.GetFrom(page, size)
 	maxResults := utils.GetMaxResults(from, size)
 	searchResponse, error := zincService.SearchByDocument(term, from, maxResults)
 	if error != nil {
-		return nil, error
+		return models.PaginatorResponse{}, error
 	}
-	return emailDocumentCopyFrom(searchResponse), error
+	data := emailDocumentCopyFrom(searchResponse)
+	response := models.PaginatorResponse{
+		Data:         data,
+		Total:        searchResponse.Hits.Total.Value,
+		RecordsCount: maxResults}
+	return response, error
 }
 
 func emailDocumentCopyFrom(response zincModels.SearchResponse) []models.EmailDocument {

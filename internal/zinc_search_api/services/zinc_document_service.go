@@ -7,6 +7,8 @@ import (
 )
 
 const emailDocName = "email_doc"
+const allDocumentsSearchType = "alldocuments"
+const matchSearchType = "match"
 
 func AddEmailDocuments(emailJsonList []zincModels.ZincEmailDocument) {
 	for _, emailRecord := range emailJsonList {
@@ -24,9 +26,17 @@ func AddEmailDocument(emailJson zincModels.ZincEmailDocument) bool {
 	return response.StatusCode == 200
 }
 
+func validateSeachType(term string) string {
+	if len(term) == 0 {
+		return allDocumentsSearchType
+	} else {
+		return matchSearchType
+	}
+}
+
 func SearchByDocument(term string, from int, maxResult int) (zincModels.SearchResponse, error) {
 	searchRequest := zincModels.SearchRequest{
-		SearchType: "match",
+		SearchType: validateSeachType(term),
 		From:       from,
 		MaxResults: maxResult,
 		Query: zincModels.Query{
